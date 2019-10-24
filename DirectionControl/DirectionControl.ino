@@ -6,9 +6,7 @@ const int dir2Pin = 3;
 const int dir1Pin = 2;
 
 int masterSwitch = 0;
-int previousMaster = 0;
 int dirSwitch = 0;
-int previousDirSwitch = 0;
 
 int motorOn = 0;
 int motorSpeed1 = 0;
