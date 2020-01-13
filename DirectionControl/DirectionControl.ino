@@ -5,6 +5,8 @@ const int HBonPin = 9;
 const int dir2Pin = 3;
 const int dir1Pin = 2;
 
+//tfghi
+
 int masterSwitch = 0;
 int dirSwitch = 0;
 
