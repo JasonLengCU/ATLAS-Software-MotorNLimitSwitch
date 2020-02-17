@@ -19,9 +19,12 @@ const uint8_t amisDirPin = 2;
 const uint8_t amisStepPin = 3;
 const uint8_t amisSlaveSelect = 4;
 const uint8_t LEDpin = 13;
+const uint8_t buttonPin = 9;
+int stepDelay = 100;
 char receivedChar;
 char lastChar;
 boolean newData = false;
+boolean buttonState;
 
 AMIS30543 stepper;
 
@@ -39,6 +42,7 @@ void setup()
   digitalWrite(LEDpin, LOW);
   pinMode(amisDirPin, OUTPUT);
   pinMode(LEDpin, OUTPUT);
+  pinMode(buttonPin, INPUT);
 
   // Give the driver some time to power up.
   digitalWrite(LEDpin,HIGH);
@@ -51,7 +55,7 @@ void setup()
   
   // Set the current limit.  You should change the number here to
   // an appropriate value for your particular system.
-  stepper.setCurrentMilliamps(1000);
+  stepper.setCurrentMilliamps(1500);
   Serial.write("Current Limit Set\n");
   
   // Set the number of microsteps that correspond to one full step.
@@ -82,45 +86,25 @@ void loop()
   recvOneChar();
   showNewData();
   lastChar = receivedChar;
+  buttonState = digitalRead(buttonPin);
   switch(lastChar){
     case 'f':
-      setDirection(1);
-      step();
-      //Serial.println("STEPPING!");
+      stepDelay = 500;
       break;
-    case 'd':
+    case 'c':
+      stepDelay = 100;
+      break;
+    case 'w':
+      if(!buttonState){
+        setDirection(1);
+        step();
+      }
+      break;
+    case 's':
       setDirection(0);
       step();
       break;
   }
-  //if(receivedChar=='a'){
-    //setDirection(0);
-    //while(receivedChar=='a'){
-      //Serial.println("STEPPING!");
-      //step();
-      //recvOneChar();
-    //}
-  //}
-  
-  // Step in the default direction 1000 times.
-  //setDirection(0);
-  //for (unsigned int x = 0; x < 1000; x++)
-  //{
-  //  step();
-  //}
-
-  // Wait for 300 ms.
-  //delay(300);
-
-  // Step in the other direction 1000 times.
-  //setDirection(1);
-  //for (unsigned int x = 0; x < 1000; x++)
-  //{
-  //  step();
-  //}
-
-  // Wait for 300 ms.
-  //delay(300);
 }
 
 // Sends a pulse on the NXT/STEP pin to tell the driver to take
@@ -138,7 +122,7 @@ void step()
   // you decrease the delay, the stepper motor will go fast, but
   // there is a limit to how fast it can go before it starts
   // missing steps.
-  delayMicroseconds(2000);
+  delayMicroseconds(stepDelay);
 }
 
 // Writes a high or low value to the direction pin to specify
@@ -161,8 +145,8 @@ void recvOneChar() {
 
 void showNewData() {
  if (newData == true) {
- Serial.print("");
- Serial.println(receivedChar);
+ //Serial.print("");
+ Serial.write(receivedChar);
  newData = false;
  }
 }
